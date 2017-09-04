@@ -10,5 +10,5 @@
 
 @interface UIBezierPath (ZRCovertString)
 
-- (UIBezierPath *)pathWithCovertedString: (NSString *)string attrinbutes: (NSDictionary *)attributes;
++ (UIBezierPath *)bezierPathWithCovertedString: (NSString *)string attrinbutes: (NSDictionary *)attributes;
 @end

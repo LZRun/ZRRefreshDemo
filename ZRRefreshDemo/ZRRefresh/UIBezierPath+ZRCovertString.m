@@ -10,7 +10,7 @@
 
 @implementation UIBezierPath (ZRCovertString)
 
-- (UIBezierPath *)pathWithCovertedString: (NSString *)string attrinbutes: (NSDictionary *)attributes{
++ (UIBezierPath *)bezierPathWithCovertedString: (NSString *)string attrinbutes: (NSDictionary *)attributes{
     NSAssert(string && attributes, @"字符串或");
     NSAttributedString *attritutedString = [[NSAttributedString alloc]initWithString:string attributes:attributes];
     //创建总路径
@@ -18,6 +18,7 @@
     //解析字形
     CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)attritutedString); //行
     CFArrayRef runs = CTLineGetGlyphRuns(line);
+    NSInteger i = 0;
     for (CFIndex index = 0; index < CFArrayGetCount(runs); index ++) {
         CTRunRef run = CFArrayGetValueAtIndex(runs, index);
         CTFontRef font = CFDictionaryGetValue(CTRunGetAttributes(run), kCTFontAttributeName);
@@ -34,9 +35,10 @@
                 CGPathAddPath(pathRef, &transform, glyphPath);
                 CGPathRelease(glyphPath);
             }
+            i ++;
         }
     }
-    
+    NSLog(@"i = %ld",i);
     //转换为bezierPath
     UIBezierPath *bezierPath = [UIBezierPath bezierPath];
     [bezierPath appendPath:[UIBezierPath bezierPathWithCGPath:pathRef]];

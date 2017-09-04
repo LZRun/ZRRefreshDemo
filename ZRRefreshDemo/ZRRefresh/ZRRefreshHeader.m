@@ -7,6 +7,7 @@
 //
 
 #import "ZRRefreshHeader.h"
+#import "UIBezierPath+ZRCovertString.h"
 
 @interface  ZRRefreshHeader ()
 @property (nonatomic,weak) UIScrollView *superScrollView;
@@ -50,7 +51,9 @@
     [_superScrollView removeObserver:self forKeyPath:@"contentOffset"];
 }
 - (void)configHeader{
+    
     self.backgroundColor = [UIColor whiteColor];
+    [UIBezierPath bezierPathWithCovertedString:@"哈哈" attrinbutes:@{NSFontAttributeName : [UIFont systemFontOfSize:50]}];
 }
 
 #pragma mark - getting
