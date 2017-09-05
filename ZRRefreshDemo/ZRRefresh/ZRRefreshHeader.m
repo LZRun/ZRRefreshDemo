@@ -84,7 +84,7 @@
     self.randomness = 150;
     self.maxDropHeight = 80;
     _refreshState = ZRRefreshStateIdle;
-    self.text = @"哈哈";
+    self.text = @"Loading";
 }
 - (void)reloadPath{
     UIBezierPath *path = [UIBezierPath bezierPathWithCovertedString:_text attrinbutes:@{NSFontAttributeName : [UIFont systemFontOfSize:50]}];
