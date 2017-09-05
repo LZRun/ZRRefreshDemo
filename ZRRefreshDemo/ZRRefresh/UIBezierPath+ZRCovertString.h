@@ -10,5 +10,17 @@
 
 @interface UIBezierPath (ZRCovertString)
 
+/**
+ 将字符串转换为具体路径
+
+ @param string 将要转换的字符串,不能为空
+ @param attributes 字符串属性,不能为空
+ @return 转换的路径
+ */
 + (UIBezierPath *)bezierPathWithCovertedString: (NSString *)string attrinbutes: (NSDictionary *)attributes;
+
+/**
+ @return 返回路径上所有的点,每条不相连的路径对应一个数组
+ */
+- (NSMutableArray<NSMutableArray<NSValue *> *> *)pointsInPath;
 @end
