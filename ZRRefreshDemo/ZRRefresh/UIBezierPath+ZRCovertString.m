@@ -35,7 +35,7 @@
                 CGPathRelease(glyphPath);
             }
         }
-    } 
+    }
     //转换为bezierPath
     UIBezierPath *bezierPath = [UIBezierPath bezierPath];
     [bezierPath appendPath:[UIBezierPath bezierPathWithCGPath:pathRef]];

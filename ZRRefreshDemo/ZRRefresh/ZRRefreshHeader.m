@@ -9,6 +9,7 @@
 #import "ZRRefreshHeader.h"
 #import "UIBezierPath+ZRCovertString.h"
 
+static CGFloat const kRefreshHeaderHeight = 80;
 @interface  ZRRefreshHeader ()
 @property (nonatomic,weak) UIScrollView *superScrollView;
 /**
@@ -28,7 +29,7 @@
 
 @implementation ZRRefreshHeader
 + (instancetype)refreshHeaderWithRefreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler{
-    ZRRefreshHeader *header = [[self alloc] initWithFrame:CGRectMake(0,-100, [UIScreen mainScreen].bounds.size.width, 100)];
+    ZRRefreshHeader *header = [[self alloc] initWithFrame:CGRectMake(0, - kRefreshHeaderHeight, [UIScreen mainScreen].bounds.size.width, kRefreshHeaderHeight)];
     if (header) {
         header.refreshingHandler = handler;
     }
@@ -42,6 +43,8 @@
     return self;
 }
 - (void)willMoveToSuperview:(UIView *)newSuperview{
+    [super willMoveToSuperview:newSuperview];
+    
     if (newSuperview && [newSuperview isKindOfClass:[UIScrollView class]]) {
         self.superScrollView = (UIScrollView *)newSuperview;
         self.contentInsetTop = _superScrollView.contentInset.top;
@@ -79,18 +82,22 @@
 - (void)configHeader{
     self.backgroundColor = [UIColor clearColor];
     self.layer.geometryFlipped = YES;
-    [self.layer addSublayer:self.animationLayer];
     
-    self.randomness = 150;
+    self.randomness = 100;
     self.maxDropHeight = 80;
     _refreshState = ZRRefreshStateIdle;
-    self.text = @"Loading";
+    _text = @"Loading";
+    _textFont = [UIFont systemFontOfSize:50];
+    _textColor = [UIColor redColor];
+    
+    [self.layer addSublayer:self.animationLayer];
+    [self reloadPath];
 }
 - (void)reloadPath{
-    UIBezierPath *path = [UIBezierPath bezierPathWithCovertedString:_text attrinbutes:@{NSFontAttributeName : [UIFont systemFontOfSize:50]}];
+    UIBezierPath *path = [UIBezierPath bezierPathWithCovertedString:_text attrinbutes:@{NSFontAttributeName : _textFont}];
     CGRect stringBounds = path.bounds;
     CGFloat paddingX = (self.bounds.size.width - stringBounds.size.width) / 2;
-    CGFloat padingY = (self.bounds.size.height - stringBounds.size.height) / 2;
+    CGFloat padingY =  (self.bounds.size.height - stringBounds.size.height) / 2;
     
     _animationLayer.frame = CGRectMake(paddingX, padingY, stringBounds.size.width, stringBounds.size.height);
     _animationLayer.path = path.CGPath;
@@ -156,7 +163,7 @@
         _animationLayer = [CAShapeLayer layer];
         _animationLayer.bounds = self.bounds;
         _animationLayer.position = self.center;
-        _animationLayer.strokeColor = [UIColor redColor].CGColor;
+        _animationLayer.strokeColor = _textColor.CGColor;
         _animationLayer.fillColor = [UIColor clearColor].CGColor;
         _animationLayer.lineJoin = kCALineJoinRound;
         _animationLayer.lineCap = kCALineCapRound;
@@ -171,7 +178,7 @@
     dropLayer.frame = self.bounds;
     //dropLayer.bounds = self.bounds;
     //dropLayer.position = self.center;
-    dropLayer.strokeColor = [UIColor redColor].CGColor;
+    dropLayer.strokeColor = _textColor.CGColor;
     dropLayer.fillColor = [UIColor clearColor].CGColor;
     dropLayer.lineJoin = kCALineJoinRound;
     dropLayer.lineCap = kCALineCapRound;
@@ -186,13 +193,12 @@
     //animation
     int translationX = arc4random_uniform(_randomness) * 2 - _randomness;
     CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    positionAnimation.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeTranslation(translationX,self.frame.size.height/2, 0)];
+    positionAnimation.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeTranslation(translationX,self.frame.size.height / 2, 0)];
     positionAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
 
-
-    CABasicAnimation *rotationAnimaiton = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-    rotationAnimaiton.fromValue = @(M_PI_4);
-    rotationAnimaiton.toValue = @0;
+//    CABasicAnimation *rotationAnimaiton = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+//    rotationAnimaiton.fromValue = @(M_PI_4);
+//    rotationAnimaiton.toValue = @0;
     
     CABasicAnimation *scaleAniamtion = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
     scaleAniamtion.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(2, 2, 1)];
@@ -202,7 +208,7 @@
     opacityAnimation.toValue = @0.3;
 
     CAAnimationGroup *group = [CAAnimationGroup animation];
-    group.animations = @[positionAnimation/*,rotationAnimaiton*/,scaleAniamtion,opacityAnimation];
+    group.animations = @[positionAnimation,/*rotationAnimaitonscaleAniamtion,*/scaleAniamtion,opacityAnimation];
     group.duration = 1;
     [dropLayer addAnimation:group forKey:nil];
     return dropLayer;
@@ -220,6 +226,20 @@
 - (void)setText:(NSString *)text{
     if (_text != text) {
         _text = [text copy];
+        [self reloadPath];
+    }
+}
+- (void)setTextFont:(UIFont *)textFont{
+    if (_textFont != textFont) {
+        _textFont = textFont;
+        [self reloadPath];
+    }
+}
+
+- (void)setTextColor:(UIColor *)textColor{
+    if (_textColor != textColor) {
+        _textColor = textColor;
+        _animationLayer.strokeColor = _textColor.CGColor;
         [self reloadPath];
     }
 }

@@ -10,7 +10,8 @@
 #import "UIView+GKExtension.h"
 #import "UIScrollView+ZRRefresh.h"
 
-@interface ViewController ()<UITextFieldDelegate>
+static NSString *cellID = @"cellID";
+@interface ViewController ()<UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @end
@@ -20,6 +21,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:cellID];
     __weak typeof (self) weakSelf = self;
     _tableView.zr_header = [ZRRefreshHeader refreshHeaderWithRefreshingHandler:^{
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -44,6 +46,17 @@
     return YES;
 }
 
+#pragma mark -
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 10;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellID];
+    cell.backgroundColor = [UIColor orangeColor];
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"index:%ld",indexPath.row];
+    return cell;
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
