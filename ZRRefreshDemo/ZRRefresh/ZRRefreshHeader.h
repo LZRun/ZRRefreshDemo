@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "ZRRefreshAnimationConfig.h"
 
 /**
  刷新控件状态
@@ -16,6 +16,7 @@ typedef NS_ENUM(NSUInteger, ZRRefreshState) {
     ZRRefreshStateIdle = 0, //闲置状态
     ZRRefreshStateRefreshing,//正在刷新状态
 };
+
 /**
  正在刷新的回调
  */
@@ -38,7 +39,6 @@ typedef void(^ZRRefreshHeaderRefreshingHandler)(void);
  刷新显示文字字体 [UIFont systemFontOfSize:50]
  */
 @property (nonatomic,strong) UIFont *textFont;
-
 /**
  控件的当前状态
  */
@@ -50,12 +50,12 @@ typedef void(^ZRRefreshHeaderRefreshingHandler)(void);
 @property (nonatomic,assign) CGFloat maxDropHeight;
 
 /**
- 水平平移随机范围,默认为150，
- 平移值为 (- randomness)  ~ (randomness - 2) 范围内的偶数
+ 动画属性配置
  */
-@property (nonatomic) CGFloat randomness;
+@property (nonatomic,strong) ZRRefreshAnimationConfig *animationConfig;
 
 + (instancetype)refreshHeaderWithRefreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler;
++ (instancetype)refreshHeaderWithAnimationConfig: (ZRRefreshAnimationConfig *)animationConfig refreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler;
 
 - (void)endRefreshing;
 @end

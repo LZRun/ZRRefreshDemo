@@ -21,20 +21,26 @@ static CGFloat const kRefreshHeaderHeight = 80;
  */
 @property (nonatomic,strong) NSMutableArray<CAShapeLayer *> *dropLayers;
 /**
- 便宜量
+ 偏移量
  */
 @property (nonatomic,assign) CGFloat contentInsetTop;
 
 @end
 
 @implementation ZRRefreshHeader
+
 + (instancetype)refreshHeaderWithRefreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler{
+    return  [self refreshHeaderWithAnimationConfig:nil refreshingHandler:handler];
+}
++ (instancetype)refreshHeaderWithAnimationConfig: (ZRRefreshAnimationConfig *)animationConfig refreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler{
     ZRRefreshHeader *header = [[self alloc] initWithFrame:CGRectZero];
     if (header) {
+        header.animationConfig = animationConfig;
         header.refreshingHandler = handler;
     }
     return header;
 }
+
 - (instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
@@ -67,7 +73,6 @@ static CGFloat const kRefreshHeaderHeight = 80;
     self.backgroundColor = [UIColor clearColor];
     self.layer.geometryFlipped = YES;
     
-    self.randomness = 150;
     self.maxDropHeight = 80;
     _refreshState = ZRRefreshStateIdle;
     _text = @"Loading";
@@ -131,7 +136,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
 }
 
 - (void)executeRefreshAnimaiton{
-    [_animationLayer addAnimation:self.refreshingAnimation forKey:nil];
+    [_animationLayer addAnimation:self.animationConfig.refreshingAnimation forKey:nil];
     if (_refreshingHandler) {
         _refreshingHandler();
     }
@@ -184,14 +189,22 @@ static CGFloat const kRefreshHeaderHeight = 80;
         _animationLayer = [CAShapeLayer layer];
         _animationLayer.bounds = self.bounds;
         _animationLayer.position = self.center;
-        _animationLayer.strokeColor = _textColor.CGColor;
+        _animationLayer.strokeColor = [UIColor blackColor].CGColor;
         _animationLayer.fillColor = [UIColor clearColor].CGColor;
         _animationLayer.lineJoin = kCALineJoinRound;
         _animationLayer.lineCap = kCALineCapRound;
         _animationLayer.lineWidth = 2;
         _animationLayer.strokeEnd = 0;
+        _animationLayer.strokeStart = 0;
     }
     return _animationLayer;
+}
+
+- (ZRRefreshAnimationConfig *)animationConfig{
+    if (!_animationConfig) {
+        _animationConfig = [[ZRRefreshAnimationConfig alloc]init];
+    }
+    return _animationConfig;
 }
 - (CAShapeLayer *)dropAnimationLayerWithPath: (UIBezierPath *)path {
     CAShapeLayer *dropLayer = [CAShapeLayer layer];
@@ -207,7 +220,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
     dropLayer.path = path.CGPath;
     
     //animation
-    int translationX = arc4random_uniform(_randomness) * 2 - _randomness;
+    int translationX = arc4random_uniform(self.animationConfig.randomness) * 2 - self.animationConfig.randomness;
     CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
     positionAnimation.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeTranslation(translationX,self.frame.size.height / 2, 0)];
     positionAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
@@ -229,15 +242,6 @@ static CGFloat const kRefreshHeaderHeight = 80;
     [dropLayer addAnimation:group forKey:nil];
     return dropLayer;
 }
-
-- (CAAnimation *)refreshingAnimation{
-    CABasicAnimation *animaiton = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
-    animaiton.toValue = @1;
-    animaiton.duration = _text.length * 0.5;
-    animaiton.repeatCount = HUGE_VALF;
-    return animaiton;
-}
-
 
 #pragma mark - setting
 - (void)setText:(NSString *)text{

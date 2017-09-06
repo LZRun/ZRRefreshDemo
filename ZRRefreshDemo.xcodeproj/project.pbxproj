@@ -19,6 +19,8 @@
 		27D395061F59511A00EF8E84 /* UIScrollView+ZRRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 27D395051F59511A00EF8E84 /* UIScrollView+ZRRefresh.m */; };
 		27D395091F59513000EF8E84 /* ZRRefreshHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 27D395081F59513000EF8E84 /* ZRRefreshHeader.m */; };
 		27D3950C1F5955DD00EF8E84 /* UIView+GKExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 27D3950B1F5955DD00EF8E84 /* UIView+GKExtension.m */; };
+		A70A0B3B1F6029C800921509 /* ZRRefreshAnimationConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = A70A0B3A1F6029C800921509 /* ZRRefreshAnimationConfig.m */; };
+		A70A0B3E1F60322C00921509 /* ZRAnimationFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = A70A0B3D1F60322C00921509 /* ZRAnimationFactory.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +65,10 @@
 		27D395081F59513000EF8E84 /* ZRRefreshHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZRRefreshHeader.m; sourceTree = "<group>"; };
 		27D3950A1F5955DD00EF8E84 /* UIView+GKExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+GKExtension.h"; sourceTree = "<group>"; };
 		27D3950B1F5955DD00EF8E84 /* UIView+GKExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+GKExtension.m"; sourceTree = "<group>"; };
+		A70A0B391F6029C700921509 /* ZRRefreshAnimationConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZRRefreshAnimationConfig.h; sourceTree = "<group>"; };
+		A70A0B3A1F6029C800921509 /* ZRRefreshAnimationConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZRRefreshAnimationConfig.m; sourceTree = "<group>"; };
+		A70A0B3C1F60322C00921509 /* ZRAnimationFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZRAnimationFactory.h; sourceTree = "<group>"; };
+		A70A0B3D1F60322C00921509 /* ZRAnimationFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZRAnimationFactory.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +160,10 @@
 				27D395051F59511A00EF8E84 /* UIScrollView+ZRRefresh.m */,
 				27D395071F59513000EF8E84 /* ZRRefreshHeader.h */,
 				27D395081F59513000EF8E84 /* ZRRefreshHeader.m */,
+				A70A0B391F6029C700921509 /* ZRRefreshAnimationConfig.h */,
+				A70A0B3A1F6029C800921509 /* ZRRefreshAnimationConfig.m */,
+				A70A0B3C1F60322C00921509 /* ZRAnimationFactory.h */,
+				A70A0B3D1F60322C00921509 /* ZRAnimationFactory.m */,
 				279B308D1F5D4289001296A2 /* UIBezierPath+ZRCovertString.h */,
 				279B308E1F5D4289001296A2 /* UIBezierPath+ZRCovertString.m */,
 			);
@@ -299,6 +309,8 @@
 				27D394DE1F594EB400EF8E84 /* main.m in Sources */,
 				27D394D01F594EB400EF8E84 /* AppDelegate.m in Sources */,
 				27D3950C1F5955DD00EF8E84 /* UIView+GKExtension.m in Sources */,
+				A70A0B3E1F60322C00921509 /* ZRAnimationFactory.m in Sources */,
+				A70A0B3B1F6029C800921509 /* ZRRefreshAnimationConfig.m in Sources */,
 				27D395091F59513000EF8E84 /* ZRRefreshHeader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

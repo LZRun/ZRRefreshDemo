@@ -13,6 +13,7 @@
 static NSString *cellID = @"cellID";
 @interface ViewController ()<UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (nonatomic,strong) NSArray *datas;
 
 @end
 
@@ -35,7 +36,8 @@ static NSString *cellID = @"cellID";
     textFiled.placeholder = @"输入文字,再下拉视图，可更换效果";
     textFiled.returnKeyType = UIReturnKeyDone;
     self.navigationItem.titleView = textFiled;
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    self.datas = @[@"ZRRefreshingAnimationTypeOriginToTerminus",@"ZRRefreshingAnimationTypeMidToSide",@"ZRRefreshingAnimationTypeSideToMid",@"ZRRefreshingAnimationTypeWormlike",@"ZRRefreshingAnimationTypeWormlikeReserse"];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
@@ -48,13 +50,13 @@ static NSString *cellID = @"cellID";
 
 #pragma mark -
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 10;
+    return _datas.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellID];
-    cell.backgroundColor = [UIColor orangeColor];
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"index:%ld",indexPath.row];
+    //cell.backgroundColor = [UIColor whiteColor];
+    cell.textLabel.text = _datas[indexPath.row];
     return cell;
 }
 
@@ -67,6 +69,11 @@ static NSString *cellID = @"cellID";
     headerView.backgroundColor = [UIColor yellowColor];
     return headerView;
 }
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    _tableView.zr_header.animationConfig.animationType = indexPath.row;
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
