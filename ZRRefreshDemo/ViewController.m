@@ -57,6 +57,16 @@ static NSString *cellID = @"cellID";
     cell.detailTextLabel.text = [NSString stringWithFormat:@"index:%ld",indexPath.row];
     return cell;
 }
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 50;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.width, 50)];
+    headerView.backgroundColor = [UIColor yellowColor];
+    return headerView;
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

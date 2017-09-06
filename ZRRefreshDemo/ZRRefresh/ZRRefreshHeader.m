@@ -29,7 +29,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
 
 @implementation ZRRefreshHeader
 + (instancetype)refreshHeaderWithRefreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler{
-    ZRRefreshHeader *header = [[self alloc] initWithFrame:CGRectMake(0, - kRefreshHeaderHeight, [UIScreen mainScreen].bounds.size.width, kRefreshHeaderHeight)];
+    ZRRefreshHeader *header = [[self alloc] initWithFrame:CGRectZero];
     if (header) {
         header.refreshingHandler = handler;
     }
@@ -44,46 +44,30 @@ static CGFloat const kRefreshHeaderHeight = 80;
 }
 - (void)willMoveToSuperview:(UIView *)newSuperview{
     [super willMoveToSuperview:newSuperview];
-    
+    //移除父视图KVO
+    [self removeObserver];
     if (newSuperview && [newSuperview isKindOfClass:[UIScrollView class]]) {
+        self.frame = CGRectMake(0, - kRefreshHeaderHeight, newSuperview.frame.size.width, kRefreshHeaderHeight);
         self.superScrollView = (UIScrollView *)newSuperview;
+        _superScrollView.alwaysBounceVertical = YES;
         self.contentInsetTop = _superScrollView.contentInset.top;
-        [_superScrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:nil];
+        [self addObserver];
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
-    if (![keyPath isEqualToString:@"contentOffset"]) {
-        return;
-    }
-    CGFloat contentOffsetY = [change[NSKeyValueChangeNewKey] CGPointValue].y;
-    NSLog(@"contentOffset = %f",contentOffsetY);
-    
-    CGFloat realContentOffSet = contentOffsetY - _contentInsetTop;
-    if (realContentOffSet <= 0 && _refreshState != ZRRefreshStateRefreshing) {
-        CGFloat dropRate = - realContentOffSet / _maxDropHeight;
-        dropRate = MIN(dropRate, 1);
-        [self executeDropAnimationWithProgresss:dropRate];
-        
-        if (!_superScrollView.dragging && dropRate == 1){
-            _refreshState = ZRRefreshStateRefreshing;
-            UIEdgeInsets edgeInsets = _superScrollView.contentInset;
-            edgeInsets.top += _maxDropHeight;
-            _superScrollView.contentInset =  edgeInsets;
-            [self executeRefreshAnimaiton];
-        }
-    }
+- (void)layoutSubviews{
+    [super layoutSubviews];
+    [self reloadPath];
 }
-
 - (void)dealloc{
-    [_superScrollView removeObserver:self forKeyPath:@"contentOffset"];
+    [self removeObserver];
 }
 #pragma mark - config
 - (void)configHeader{
     self.backgroundColor = [UIColor clearColor];
     self.layer.geometryFlipped = YES;
     
-    self.randomness = 100;
+    self.randomness = 150;
     self.maxDropHeight = 80;
     _refreshState = ZRRefreshStateIdle;
     _text = @"Loading";
@@ -91,7 +75,6 @@ static CGFloat const kRefreshHeaderHeight = 80;
     _textColor = [UIColor redColor];
     
     [self.layer addSublayer:self.animationLayer];
-    [self reloadPath];
 }
 - (void)reloadPath{
     UIBezierPath *path = [UIBezierPath bezierPathWithCovertedString:_text attrinbutes:@{NSFontAttributeName : _textFont}];
@@ -119,25 +102,32 @@ static CGFloat const kRefreshHeaderHeight = 80;
         [pathPoints enumerateObjectsUsingBlock:^(NSValue *obj, NSUInteger idx, BOOL * _Nonnull stop) {
             if (idx < lastCout) {
                 CGPoint startPoint = obj.CGPointValue;
-                startPoint.x += paddingX;
-                startPoint.y += padingY;
                 CGPoint endPoint = [pathPoints[idx + 1] CGPointValue];
-                endPoint.x += paddingX;
-                endPoint.y += padingY;
-                
-                CAShapeLayer *dropLayer = [self dropAnimationLayerWithStartPoint:startPoint endPoint:endPoint];
+                //分割所有线条
+                UIBezierPath *path = [UIBezierPath bezierPath];
+                [path moveToPoint:startPoint];
+                [path addLineToPoint:endPoint];
+
+                CAShapeLayer *dropLayer = [self dropAnimationLayerWithPath:path];
+                dropLayer.frame = _animationLayer.frame;
                 [self.layer addSublayer:dropLayer];
                 [_dropLayers addObject:dropLayer];
             }
         }];
     }
+    [_animationLayer removeFromSuperlayer];
+    [self.layer addSublayer:_animationLayer];
 }
 
 - (void)executeDropAnimationWithProgresss: (CGFloat)progress{
     NSLog(@"progress == %f",progress);
-    for (CALayer *dropLayer in _dropLayers) {
-        dropLayer.timeOffset = progress;
-    }
+    NSInteger count = _dropLayers.count - 1;
+    [_dropLayers enumerateObjectsUsingBlock:^(CAShapeLayer * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        //控制动画完成速率，保证动画逐步完成
+        CGFloat timeOffset = progress * (count * 2 - idx) / count;
+        timeOffset = MIN(timeOffset, 1);
+        obj.timeOffset = timeOffset;
+    }];
 }
 
 - (void)executeRefreshAnimaiton{
@@ -157,6 +147,37 @@ static CGFloat const kRefreshHeaderHeight = 80;
     }];
 }
 
+#pragma mark - KVO
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
+    if (![keyPath isEqualToString:@"contentOffset"]) {
+        return;
+    }
+    CGFloat contentOffsetY = [change[NSKeyValueChangeNewKey] CGPointValue].y;
+    NSLog(@"contentOffset = %f",contentOffsetY);
+    
+    CGFloat realContentOffSet = contentOffsetY - _contentInsetTop;
+    if (realContentOffSet <= 0 && _refreshState != ZRRefreshStateRefreshing) {
+        CGFloat dropRate = - realContentOffSet / _maxDropHeight;
+        dropRate = MIN(dropRate, 1);
+        [self executeDropAnimationWithProgresss:dropRate];
+        
+        if (!_superScrollView.dragging && dropRate == 1){
+            _refreshState = ZRRefreshStateRefreshing;
+            UIEdgeInsets edgeInsets = _superScrollView.contentInset;
+            edgeInsets.top += _maxDropHeight;
+            _superScrollView.contentInset =  edgeInsets;
+            [self executeRefreshAnimaiton];
+        }
+    }
+}
+- (void)addObserver{
+    [_superScrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:nil];
+}
+
+- (void)removeObserver{
+    [_superScrollView removeObserver:self forKeyPath:@"contentOffset"];
+}
+
 #pragma mark - getting
 - (CAShapeLayer *)animationLayer{
     if (!_animationLayer) {
@@ -172,10 +193,9 @@ static CGFloat const kRefreshHeaderHeight = 80;
     }
     return _animationLayer;
 }
-
-- (CAShapeLayer *)dropAnimationLayerWithStartPoint:(CGPoint)startPoint endPoint: (CGPoint)endPoint {
+- (CAShapeLayer *)dropAnimationLayerWithPath: (UIBezierPath *)path {
     CAShapeLayer *dropLayer = [CAShapeLayer layer];
-    dropLayer.frame = self.bounds;
+    //dropLayer.frame = self.bounds;
     //dropLayer.bounds = self.bounds;
     //dropLayer.position = self.center;
     dropLayer.strokeColor = _textColor.CGColor;
@@ -184,10 +204,6 @@ static CGFloat const kRefreshHeaderHeight = 80;
     dropLayer.lineCap = kCALineCapRound;
     dropLayer.lineWidth = 2.f;
     dropLayer.speed = 0;
-    
-    UIBezierPath *path = [UIBezierPath bezierPath];
-    [path moveToPoint:startPoint];
-    [path addLineToPoint:endPoint];
     dropLayer.path = path.CGPath;
     
     //animation
@@ -195,20 +211,20 @@ static CGFloat const kRefreshHeaderHeight = 80;
     CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
     positionAnimation.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeTranslation(translationX,self.frame.size.height / 2, 0)];
     positionAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-
-//    CABasicAnimation *rotationAnimaiton = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-//    rotationAnimaiton.fromValue = @(M_PI_4);
-//    rotationAnimaiton.toValue = @0;
+    
+    CABasicAnimation *rotationAnimaiton = [CABasicAnimation animationWithKeyPath:@"transform.rotation"];
+    rotationAnimaiton.fromValue = @(M_PI_4);
+    rotationAnimaiton.toValue = @(0);
     
     CABasicAnimation *scaleAniamtion = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
-    scaleAniamtion.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(2, 2, 1)];
+    scaleAniamtion.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(0.1, 0.1, 1)];
     scaleAniamtion.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
     
     CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    opacityAnimation.toValue = @0.3;
+    opacityAnimation.toValue = @0.5;
 
     CAAnimationGroup *group = [CAAnimationGroup animation];
-    group.animations = @[positionAnimation,/*rotationAnimaitonscaleAniamtion,*/scaleAniamtion,opacityAnimation];
+    group.animations = @[positionAnimation,rotationAnimaiton,scaleAniamtion,opacityAnimation];
     group.duration = 1;
     [dropLayer addAnimation:group forKey:nil];
     return dropLayer;
@@ -217,10 +233,11 @@ static CGFloat const kRefreshHeaderHeight = 80;
 - (CAAnimation *)refreshingAnimation{
     CABasicAnimation *animaiton = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
     animaiton.toValue = @1;
-    animaiton.duration = 3;
+    animaiton.duration = _text.length * 0.5;
     animaiton.repeatCount = HUGE_VALF;
     return animaiton;
 }
+
 
 #pragma mark - setting
 - (void)setText:(NSString *)text{
