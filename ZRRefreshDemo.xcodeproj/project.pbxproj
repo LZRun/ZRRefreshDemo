@@ -122,13 +122,13 @@
 		27D394CD1F594EB400EF8E84 /* ZRRefreshDemo */ = {
 			isa = PBXGroup;
 			children = (
-				A71C77E51F61741600244A2F /* ZRTableView.h */,
-				A71C77E61F61741600244A2F /* ZRTableView.m */,
 				27D395031F59510300EF8E84 /* ZRRefresh */,
 				27D394CE1F594EB400EF8E84 /* AppDelegate.h */,
 				27D394CF1F594EB400EF8E84 /* AppDelegate.m */,
 				27D394D11F594EB400EF8E84 /* ViewController.h */,
 				27D394D21F594EB400EF8E84 /* ViewController.m */,
+				A71C77E51F61741600244A2F /* ZRTableView.h */,
+				A71C77E61F61741600244A2F /* ZRTableView.m */,
 				27D3950A1F5955DD00EF8E84 /* UIView+GKExtension.h */,
 				27D3950B1F5955DD00EF8E84 /* UIView+GKExtension.m */,
 				27D394D41F594EB400EF8E84 /* Main.storyboard */,
