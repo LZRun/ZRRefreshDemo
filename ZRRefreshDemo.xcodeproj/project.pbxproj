@@ -21,6 +21,7 @@
 		27D3950C1F5955DD00EF8E84 /* UIView+GKExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 27D3950B1F5955DD00EF8E84 /* UIView+GKExtension.m */; };
 		A70A0B3B1F6029C800921509 /* ZRRefreshAnimationConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = A70A0B3A1F6029C800921509 /* ZRRefreshAnimationConfig.m */; };
 		A70A0B3E1F60322C00921509 /* ZRAnimationFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = A70A0B3D1F60322C00921509 /* ZRAnimationFactory.m */; };
+		A71C77E71F61741700244A2F /* ZRTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A71C77E61F61741600244A2F /* ZRTableView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,8 @@
 		A70A0B3A1F6029C800921509 /* ZRRefreshAnimationConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZRRefreshAnimationConfig.m; sourceTree = "<group>"; };
 		A70A0B3C1F60322C00921509 /* ZRAnimationFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZRAnimationFactory.h; sourceTree = "<group>"; };
 		A70A0B3D1F60322C00921509 /* ZRAnimationFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZRAnimationFactory.m; sourceTree = "<group>"; };
+		A71C77E51F61741600244A2F /* ZRTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZRTableView.h; sourceTree = "<group>"; };
+		A71C77E61F61741600244A2F /* ZRTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZRTableView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +122,8 @@
 		27D394CD1F594EB400EF8E84 /* ZRRefreshDemo */ = {
 			isa = PBXGroup;
 			children = (
+				A71C77E51F61741600244A2F /* ZRTableView.h */,
+				A71C77E61F61741600244A2F /* ZRTableView.m */,
 				27D395031F59510300EF8E84 /* ZRRefresh */,
 				27D394CE1F594EB400EF8E84 /* AppDelegate.h */,
 				27D394CF1F594EB400EF8E84 /* AppDelegate.m */,
@@ -306,6 +311,7 @@
 				27D394D31F594EB400EF8E84 /* ViewController.m in Sources */,
 				27D395061F59511A00EF8E84 /* UIScrollView+ZRRefresh.m in Sources */,
 				279B308F1F5D4289001296A2 /* UIBezierPath+ZRCovertString.m in Sources */,
+				A71C77E71F61741700244A2F /* ZRTableView.m in Sources */,
 				27D394DE1F594EB400EF8E84 /* main.m in Sources */,
 				27D394D01F594EB400EF8E84 /* AppDelegate.m in Sources */,
 				27D3950C1F5955DD00EF8E84 /* UIView+GKExtension.m in Sources */,

@@ -9,10 +9,11 @@
 #import "ViewController.h"
 #import "UIView+GKExtension.h"
 #import "UIScrollView+ZRRefresh.h"
+#import "ZRTableView.h"
 
 static NSString *cellID = @"cellID";
 @interface ViewController ()<UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource>
-@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet ZRTableView *tableView;
 @property (nonatomic,strong) NSArray *datas;
 
 @end
@@ -38,8 +39,17 @@ static NSString *cellID = @"cellID";
     self.navigationItem.titleView = textFiled;
     
     self.datas = @[@"ZRRefreshingAnimationTypeOriginToTerminus",@"ZRRefreshingAnimationTypeMidToSide",@"ZRRefreshingAnimationTypeSideToMid",@"ZRRefreshingAnimationTypeWormlike",@"ZRRefreshingAnimationTypeWormlikeReserse"];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithTitle:@"change" style:UIBarButtonItemStylePlain target:self action:@selector(changeItemAction)];
+    self.navigationItem.rightBarButtonItem = item;
+    // Do any additional setup after loading the view, typically from a nib.
 }
-
+- (void)viewWillLayoutSubviews{
+    [super viewWillLayoutSubviews];
+    
+}
+- (void)changeItemAction{
+    self.tableView.zr_header.frame = CGRectMake(0, 0, 100, 100);
+}
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
     [textField endEditing:YES];
     if (textField.text.length > 0) {
