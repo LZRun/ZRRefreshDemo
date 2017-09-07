@@ -47,7 +47,6 @@ static CGFloat const kRefreshHeaderHeight = 80;
     //移除父视图KVO
     [self removeObserver];
     if (newSuperview && [newSuperview isKindOfClass:[UIScrollView class]]) {
-        self.frame = CGRectMake(0, - kRefreshHeaderHeight, newSuperview.frame.size.width, kRefreshHeaderHeight);
         self.superScrollView = (UIScrollView *)newSuperview;
         _superScrollView.alwaysBounceVertical = YES;
         self.contentInsetTop = _superScrollView.contentInset.top;
@@ -56,8 +55,11 @@ static CGFloat const kRefreshHeaderHeight = 80;
 }
 
 - (void)layoutSubviews{
+    if (self.superview) {
+        self.frame = CGRectMake(0, - kRefreshHeaderHeight, self.superview.frame.size.width, kRefreshHeaderHeight);
+        [self reloadPath];
+    }
     [super layoutSubviews];
-    [self reloadPath];
 }
 - (void)dealloc{
     [self removeObserver];
@@ -120,7 +122,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
 }
 
 - (void)executeDropAnimationWithProgresss: (CGFloat)progress{
-    NSLog(@"progress == %f",progress);
+    //NSLog(@"progress == %f",progress);
     NSInteger count = _dropLayers.count - 1;
     [_dropLayers enumerateObjectsUsingBlock:^(CAShapeLayer * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         //控制动画完成速率，保证动画逐步完成

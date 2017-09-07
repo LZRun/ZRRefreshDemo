@@ -19,6 +19,7 @@
 		27D395061F59511A00EF8E84 /* UIScrollView+ZRRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 27D395051F59511A00EF8E84 /* UIScrollView+ZRRefresh.m */; };
 		27D395091F59513000EF8E84 /* ZRRefreshHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 27D395081F59513000EF8E84 /* ZRRefreshHeader.m */; };
 		27D3950C1F5955DD00EF8E84 /* UIView+GKExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 27D3950B1F5955DD00EF8E84 /* UIView+GKExtension.m */; };
+		27DC17C71F6147D8005DA3C9 /* ZRTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 27DC17C61F6147D8005DA3C9 /* ZRTableView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,8 @@
 		27D395081F59513000EF8E84 /* ZRRefreshHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZRRefreshHeader.m; sourceTree = "<group>"; };
 		27D3950A1F5955DD00EF8E84 /* UIView+GKExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+GKExtension.h"; sourceTree = "<group>"; };
 		27D3950B1F5955DD00EF8E84 /* UIView+GKExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+GKExtension.m"; sourceTree = "<group>"; };
+		27DC17C51F6147D8005DA3C9 /* ZRTableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZRTableView.h; sourceTree = "<group>"; };
+		27DC17C61F6147D8005DA3C9 /* ZRTableView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZRTableView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +128,8 @@
 				27D394D91F594EB400EF8E84 /* LaunchScreen.storyboard */,
 				27D394DC1F594EB400EF8E84 /* Info.plist */,
 				27D394DD1F594EB400EF8E84 /* main.m */,
+				27DC17C51F6147D8005DA3C9 /* ZRTableView.h */,
+				27DC17C61F6147D8005DA3C9 /* ZRTableView.m */,
 			);
 			path = ZRRefreshDemo;
 			sourceTree = "<group>";
@@ -300,6 +305,7 @@
 				27D394D01F594EB400EF8E84 /* AppDelegate.m in Sources */,
 				27D3950C1F5955DD00EF8E84 /* UIView+GKExtension.m in Sources */,
 				27D395091F59513000EF8E84 /* ZRRefreshHeader.m in Sources */,
+				27DC17C71F6147D8005DA3C9 /* ZRTableView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

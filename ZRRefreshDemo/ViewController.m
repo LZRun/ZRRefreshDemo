@@ -9,10 +9,11 @@
 #import "ViewController.h"
 #import "UIView+GKExtension.h"
 #import "UIScrollView+ZRRefresh.h"
+#import "ZRTableView.h"
 
 static NSString *cellID = @"cellID";
 @interface ViewController ()<UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource>
-@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet ZRTableView *tableView;
 
 @end
 
@@ -35,9 +36,18 @@ static NSString *cellID = @"cellID";
     textFiled.placeholder = @"输入文字,再下拉视图，可更换效果";
     textFiled.returnKeyType = UIReturnKeyDone;
     self.navigationItem.titleView = textFiled;
+    
+    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithTitle:@"change" style:UIBarButtonItemStylePlain target:self action:@selector(changeItemAction)];
+    self.navigationItem.rightBarButtonItem = item;
     // Do any additional setup after loading the view, typically from a nib.
 }
-
+- (void)viewWillLayoutSubviews{
+    [super viewWillLayoutSubviews];
+    
+}
+- (void)changeItemAction{
+    self.tableView.zr_header.frame = CGRectMake(0, 0, 100, 100);
+}
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
     [textField endEditing:YES];
     if (textField.text.length > 0) {
