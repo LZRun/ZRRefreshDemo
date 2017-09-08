@@ -23,7 +23,10 @@ typedef NS_ENUM(NSUInteger, ZRRefreshingAnimationType) {
 };
 
 @interface ZRAnimationFactory : NSObject
-
++ (CABasicAnimation *)pullingTrasitionAnimation;
++ (CABasicAnimation *)pullingRotationAnimation;
++ (CABasicAnimation *)pullingScaleAnimation;
++ (CABasicAnimation *)pullingOpacityAnimation;
 + (CAAnimation *)refreshingAnimationWithAnimationType: (ZRRefreshingAnimationType)animationType;
 
 @end

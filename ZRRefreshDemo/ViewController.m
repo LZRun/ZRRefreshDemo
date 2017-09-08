@@ -25,7 +25,7 @@ static NSString *cellID = @"cellID";
     
     [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:cellID];
     __weak typeof (self) weakSelf = self;
-    _tableView.zr_header = [ZRRefreshHeader refreshHeaderWithRefreshingHandler:^{
+    _tableView.zr_header = [ZRRefreshHeader refreshHeaderWithAnimationConfig:[[ZRRefreshAnimationConfig alloc] init] refreshingHandler:^{
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [weakSelf.tableView.zr_header endRefreshing];
         });
@@ -38,7 +38,7 @@ static NSString *cellID = @"cellID";
     textFiled.returnKeyType = UIReturnKeyDone;
     self.navigationItem.titleView = textFiled;
     
-    self.datas = @[@"ZRRefreshingAnimationTypeOriginToTerminus",@"ZRRefreshingAnimationTypeMidToSide",@"ZRRefreshingAnimationTypeSideToMid",@"ZRRefreshingAnimationTypeWormlike",@"ZRRefreshingAnimationTypeWormlikeReserse"];
+    self.datas = @[@"OriginToTerminus",@"MidToSide",@"SideToMid",@"Wormlike",@"WormlikeReserse"];
     UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithTitle:@"change" style:UIBarButtonItemStylePlain target:self action:@selector(changeItemAction)];
     self.navigationItem.rightBarButtonItem = item;
     // Do any additional setup after loading the view, typically from a nib.
@@ -48,7 +48,7 @@ static NSString *cellID = @"cellID";
     
 }
 - (void)changeItemAction{
-    self.tableView.zr_header.frame = CGRectMake(0, 0, 100, 100);
+    self.tableView.width = 200;
 }
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
     [textField endEditing:YES];

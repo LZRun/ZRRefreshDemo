@@ -40,6 +40,10 @@ typedef void(^ZRRefreshHeaderRefreshingHandler)(void);
  */
 @property (nonatomic,strong) UIFont *textFont;
 /**
+ 正在刷新时的线条颜色 默认
+ */
+@property (nonatomic,strong) UIColor *refresingLineColor;
+/**
  控件的当前状态
  */
 @property (nonatomic,readonly) ZRRefreshState refreshState;

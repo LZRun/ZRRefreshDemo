@@ -24,10 +24,16 @@ static CGFloat const kRefreshHeaderHeight = 80;
  偏移量
  */
 @property (nonatomic,assign) CGFloat contentInsetTop;
+/**
+ 文字路径
+ */
+@property (nonatomic,strong) UIBezierPath *textPath;
 
 @end
 
 @implementation ZRRefreshHeader
+
+@synthesize animationConfig = _animationConfig;
 
 + (instancetype)refreshHeaderWithRefreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler{
     return  [self refreshHeaderWithAnimationConfig:nil refreshingHandler:handler];
@@ -35,7 +41,9 @@ static CGFloat const kRefreshHeaderHeight = 80;
 + (instancetype)refreshHeaderWithAnimationConfig: (ZRRefreshAnimationConfig *)animationConfig refreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler{
     ZRRefreshHeader *header = [[self alloc] initWithFrame:CGRectZero];
     if (header) {
-        header.animationConfig = animationConfig;
+        //不调用set方法
+        header -> _animationConfig = animationConfig;
+        [header setUpAnimaitonConfigViewHeightHandler];
         header.refreshingHandler = handler;
     }
     return header;
@@ -48,23 +56,29 @@ static CGFloat const kRefreshHeaderHeight = 80;
     }
     return self;
 }
+
 - (void)willMoveToSuperview:(UIView *)newSuperview{
     [super willMoveToSuperview:newSuperview];
     //移除父视图KVO
     [self removeObserver];
     if (newSuperview && [newSuperview isKindOfClass:[UIScrollView class]]) {
         self.superScrollView = (UIScrollView *)newSuperview;
+        self.frame = CGRectMake(0, - kRefreshHeaderHeight, _superScrollView.frame.size.width, kRefreshHeaderHeight);
         _superScrollView.alwaysBounceVertical = YES;
         self.contentInsetTop = _superScrollView.contentInset.top;
         [self addObserver];
+        
+        //绘制文字
+        [self reloadPath];
     }
 }
 
 - (void)layoutSubviews{
-    if (self.superview) {
-        self.frame = CGRectMake(0, - kRefreshHeaderHeight, self.superview.frame.size.width, kRefreshHeaderHeight);
-        [self reloadPath];
-    }
+    CGRect frame = self.frame;
+    frame.origin.y = -frame.size.height;
+    self.frame = frame;
+    
+    [self placeLayer];
     [super layoutSubviews];
 }
 - (void)dealloc{
@@ -73,6 +87,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
 #pragma mark - config
 - (void)configHeader{
     self.backgroundColor = [UIColor clearColor];
+    self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     self.layer.geometryFlipped = YES;
     
     self.maxDropHeight = 80;
@@ -80,19 +95,16 @@ static CGFloat const kRefreshHeaderHeight = 80;
     _text = @"Loading";
     _textFont = [UIFont systemFontOfSize:50];
     _textColor = [UIColor redColor];
+    _refresingLineColor = [UIColor blackColor];
     
     [self.layer addSublayer:self.animationLayer];
 }
+
 - (void)reloadPath{
-    UIBezierPath *path = [UIBezierPath bezierPathWithCovertedString:_text attrinbutes:@{NSFontAttributeName : _textFont}];
-    CGRect stringBounds = path.bounds;
-    CGFloat paddingX = (self.bounds.size.width - stringBounds.size.width) / 2;
-    CGFloat padingY =  (self.bounds.size.height - stringBounds.size.height) / 2;
+    self.textPath = [UIBezierPath bezierPathWithCovertedString:_text attrinbutes:@{NSFontAttributeName : _textFont}];
+    _animationLayer.path = _textPath.CGPath;
     
-    _animationLayer.frame = CGRectMake(paddingX, padingY, stringBounds.size.width, stringBounds.size.height);
-    _animationLayer.path = path.CGPath;
-    
-    NSMutableArray *allPoints = [path pointsInPath];
+    NSMutableArray *allPoints = [_textPath pointsInPath];
     if (self.dropLayers) {
         [self.dropLayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
         [self.dropLayers removeAllObjects];
@@ -116,16 +128,39 @@ static CGFloat const kRefreshHeaderHeight = 80;
                 [path addLineToPoint:endPoint];
 
                 CAShapeLayer *dropLayer = [self dropAnimationLayerWithPath:path];
-                dropLayer.frame = _animationLayer.frame;
                 [self.layer addSublayer:dropLayer];
                 [_dropLayers addObject:dropLayer];
             }
         }];
     }
+    [self placeLayer];
+    
     [_animationLayer removeFromSuperlayer];
     [self.layer addSublayer:_animationLayer];
 }
-
+//对layar布局
+- (void)placeLayer{
+    if (!_textPath) {
+        return;
+    }
+    CGRect stringBounds = _textPath.bounds;
+    CGFloat paddingX = (self.bounds.size.width - stringBounds.size.width) / 2;
+    CGFloat padingY =  (self.bounds.size.height - stringBounds.size.height) / 2;
+    
+    CGRect layerFrame = CGRectMake(paddingX, padingY, stringBounds.size.width, stringBounds.size.height);
+    _animationLayer.frame = layerFrame;
+    [_dropLayers enumerateObjectsUsingBlock:^(CAShapeLayer * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.frame = layerFrame;
+    }];
+}
+//配置AnimaitonConfig回调函数
+- (void)setUpAnimaitonConfigViewHeightHandler{
+    __weak ZRRefreshHeader *weakSelf = self;
+    _animationConfig.viewHeightHandler = ^CGFloat (void){
+        return weakSelf.frame.size.height;
+    };
+}
+#pragma mark - animaiton
 - (void)executeDropAnimationWithProgresss: (CGFloat)progress{
     //NSLog(@"progress == %f",progress);
     NSInteger count = _dropLayers.count - 1;
@@ -185,13 +220,13 @@ static CGFloat const kRefreshHeaderHeight = 80;
     [_superScrollView removeObserver:self forKeyPath:@"contentOffset"];
 }
 
-#pragma mark - getting
+#pragma mark - getLayer
 - (CAShapeLayer *)animationLayer{
     if (!_animationLayer) {
         _animationLayer = [CAShapeLayer layer];
         _animationLayer.bounds = self.bounds;
         _animationLayer.position = self.center;
-        _animationLayer.strokeColor = [UIColor blackColor].CGColor;
+        _animationLayer.strokeColor = _refresingLineColor.CGColor;
         _animationLayer.fillColor = [UIColor clearColor].CGColor;
         _animationLayer.lineJoin = kCALineJoinRound;
         _animationLayer.lineCap = kCALineCapRound;
@@ -200,13 +235,6 @@ static CGFloat const kRefreshHeaderHeight = 80;
         _animationLayer.strokeStart = 0;
     }
     return _animationLayer;
-}
-
-- (ZRRefreshAnimationConfig *)animationConfig{
-    if (!_animationConfig) {
-        _animationConfig = [[ZRRefreshAnimationConfig alloc]init];
-    }
-    return _animationConfig;
 }
 - (CAShapeLayer *)dropAnimationLayerWithPath: (UIBezierPath *)path {
     CAShapeLayer *dropLayer = [CAShapeLayer layer];
@@ -221,31 +249,11 @@ static CGFloat const kRefreshHeaderHeight = 80;
     dropLayer.speed = 0;
     dropLayer.path = path.CGPath;
     
-    //animation
-    int translationX = arc4random_uniform(self.animationConfig.randomness) * 2 - self.animationConfig.randomness;
-    CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    positionAnimation.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeTranslation(translationX,self.frame.size.height / 2, 0)];
-    positionAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-    
-    CABasicAnimation *rotationAnimaiton = [CABasicAnimation animationWithKeyPath:@"transform.rotation"];
-    rotationAnimaiton.fromValue = @(M_PI_4);
-    rotationAnimaiton.toValue = @(0);
-    
-    CABasicAnimation *scaleAniamtion = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
-    scaleAniamtion.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(0.1, 0.1, 1)];
-    scaleAniamtion.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-    
-    CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    opacityAnimation.toValue = @0.5;
-
-    CAAnimationGroup *group = [CAAnimationGroup animation];
-    group.animations = @[positionAnimation,rotationAnimaiton,scaleAniamtion,opacityAnimation];
-    group.duration = 1;
-    [dropLayer addAnimation:group forKey:nil];
+    [dropLayer addAnimation:self.animationConfig.pullingAnimation forKey:nil];
     return dropLayer;
 }
 
-#pragma mark - setting
+#pragma mark - setting,getting
 - (void)setText:(NSString *)text{
     if (_text != text) {
         _text = [text copy];
@@ -262,7 +270,30 @@ static CGFloat const kRefreshHeaderHeight = 80;
 - (void)setTextColor:(UIColor *)textColor{
     if (_textColor != textColor) {
         _textColor = textColor;
-        _animationLayer.strokeColor = _textColor.CGColor;
+        [_dropLayers enumerateObjectsUsingBlock:^(CAShapeLayer * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            obj.strokeColor = textColor.CGColor;
+        }];
+    }
+}
+- (void)setRefresingLineColor:(UIColor *)refresingLineColor{
+    if (_refresingLineColor != refresingLineColor) {
+        _refresingLineColor = refresingLineColor;
+        _animationLayer.strokeColor = refresingLineColor.CGColor;
+    }
+}
+
+- (ZRRefreshAnimationConfig *)animationConfig{
+    if (!_animationConfig) {
+        _animationConfig = [[ZRRefreshAnimationConfig alloc]init];
+        [self setUpAnimaitonConfigViewHeightHandler];
+    }
+    return _animationConfig;
+}
+
+- (void)setAnimationConfig:(ZRRefreshAnimationConfig *)animationConfig{
+    if (_animationConfig != animationConfig) {
+        _animationConfig = animationConfig;
+        [self setUpAnimaitonConfigViewHeightHandler];
         [self reloadPath];
     }
 }

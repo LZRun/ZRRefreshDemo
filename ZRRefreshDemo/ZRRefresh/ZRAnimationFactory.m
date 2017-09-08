@@ -9,6 +9,32 @@
 #import "ZRAnimationFactory.h"
 
 @implementation ZRAnimationFactory
+
+#pragma mark - pullingAnimation
++ (CABasicAnimation *)pullingTrasitionAnimation{
+
+    CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+    positionAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
+    return positionAnimation;
+}
++ (CABasicAnimation *)pullingRotationAnimation{
+    CABasicAnimation *rotationAnimaiton = [CABasicAnimation animationWithKeyPath:@"transform.rotation"];
+    rotationAnimaiton.toValue = @(0);
+    return rotationAnimaiton;
+}
+
++ (CABasicAnimation *)pullingScaleAnimation{
+    CABasicAnimation *scaleAniamtion = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    scaleAniamtion.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
+    return scaleAniamtion;
+}
+
++ (CABasicAnimation *)pullingOpacityAnimation{
+    CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    //opacityAnimation.fromValue = @1;
+    return opacityAnimation;
+}
+#pragma mark - refreshingAnimation
 + (CAAnimation *)refreshingAnimationWithAnimationType: (ZRRefreshingAnimationType)animationType{
     CAAnimation *animation;
     switch (animationType) {
