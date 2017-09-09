@@ -230,7 +230,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
     //初始偏移： - _contentInsetTop 拖拽偏移: contentOffsetY - 初始偏移
     
     CGFloat pullingOffSet = _contentInsetTop > 0 ? contentOffsetY + _contentInsetTop : contentOffsetY;
-    if (pullingOffSet > 0) {//向上滑动时不会触动下拉刷新
+    if (pullingOffSet > 0) {//视图未达到可视位置时不处理
         return;
     }
     //当前拖拽比例
