@@ -23,6 +23,7 @@ static NSString *cellID = @"cellID";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    _tableView.contentInset = UIEdgeInsetsMake(-30, 0, 0, 0);
     [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:cellID];
     __weak typeof (self) weakSelf = self;
     _tableView.zr_header = [ZRRefreshHeader refreshHeaderWithAnimationConfig:[[ZRRefreshAnimationConfig alloc] init] refreshingHandler:^{
@@ -48,7 +49,7 @@ static NSString *cellID = @"cellID";
     
 }
 - (void)changeItemAction{
-    self.tableView.width = 200;
+    [self.tableView.zr_header beginRefreshing];
 }
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
     [textField endEditing:YES];

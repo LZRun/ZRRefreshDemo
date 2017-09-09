@@ -28,6 +28,11 @@ static CGFloat const kRefreshHeaderHeight = 80;
  文字路径
  */
 @property (nonatomic,strong) UIBezierPath *textPath;
+/**
+ 拉下进度
+ */
+@property (nonatomic) CGFloat pullingProgress;
+
 
 @end
 
@@ -75,7 +80,8 @@ static CGFloat const kRefreshHeaderHeight = 80;
 
 - (void)layoutSubviews{
     CGRect frame = self.frame;
-    frame.origin.y = -frame.size.height;
+    //当scrollview的contentInset.top大于0时,防止视图显示出来
+    frame.origin.y = _contentInsetTop > 0 ? -frame.size.height - _contentInsetTop : -frame.size.height;
     self.frame = frame;
     
     [self placeLayer];
@@ -179,8 +185,24 @@ static CGFloat const kRefreshHeaderHeight = 80;
     }
 }
 #pragma mark - public
+- (void)beginRefreshing{
+     self.pullingProgress = 1;
+    //防止因页面跳转造成的误刷新
+    if (!self.window) {
+        return;
+    }
+    _refreshState = ZRRefreshStateRefreshing;
+    _refreshing = YES;
+
+    UIEdgeInsets edgeInsets = _superScrollView.contentInset;
+    edgeInsets.top = _contentInsetTop + self.frame.size.height;
+    _superScrollView.contentInset = edgeInsets;
+   
+    [self executeRefreshAnimaiton];
+}
 - (void)endRefreshing{
     _refreshState = ZRRefreshStateIdle;
+    _refreshing = NO;
     [_animationLayer removeAllAnimations];
     UIEdgeInsets edgeInsets = _superScrollView.contentInset;
     edgeInsets.top = _contentInsetTop;
@@ -194,22 +216,30 @@ static CGFloat const kRefreshHeaderHeight = 80;
     if (![keyPath isEqualToString:@"contentOffset"]) {
         return;
     }
+    if (_refreshState == ZRRefreshStateRefreshing) {
+        return;
+    }
+    
+    // 跳转到下一个控制器时，contentInset可能会变
+    _contentInsetTop = _superScrollView.contentInset.top;
+    
     CGFloat contentOffsetY = [change[NSKeyValueChangeNewKey] CGPointValue].y;
     NSLog(@"contentOffset = %f",contentOffsetY);
     
-    CGFloat realContentOffSet = contentOffsetY - _contentInsetTop;
-    if (realContentOffSet <= 0 && _refreshState != ZRRefreshStateRefreshing) {
-        CGFloat dropRate = - realContentOffSet / _maxDropHeight;
-        dropRate = MIN(dropRate, 1);
-        [self executeDropAnimationWithProgresss:dropRate];
-        
-        if (!_superScrollView.dragging && dropRate == 1){
-            _refreshState = ZRRefreshStateRefreshing;
-            UIEdgeInsets edgeInsets = _superScrollView.contentInset;
-            edgeInsets.top += _maxDropHeight;
-            _superScrollView.contentInset =  edgeInsets;
-            [self executeRefreshAnimaiton];
-        }
+    //视图可见时的拖拽偏移量 （考虑到_contentInsetTop的值可能为正或负值得情况）
+    //初始偏移： - _contentInsetTop 拖拽偏移: contentOffsetY - 初始偏移
+    
+    CGFloat pullingOffSet = _contentInsetTop > 0 ? contentOffsetY + _contentInsetTop : contentOffsetY;
+    if (pullingOffSet > 0) {//向上滑动时不会触动下拉刷新
+        return;
+    }
+    //当前拖拽比例
+    CGFloat dropRate = - pullingOffSet / _maxDropHeight;
+    dropRate = MAX(MIN(dropRate, 1), 0);
+    self.pullingProgress = dropRate;
+ 
+    if (!_superScrollView.dragging && dropRate == 1){
+        [self beginRefreshing];
     }
 }
 - (void)addObserver{
@@ -254,6 +284,19 @@ static CGFloat const kRefreshHeaderHeight = 80;
 }
 
 #pragma mark - setting,getting
+- (void)setPullingProgress:(CGFloat)pullingProgress{
+    if (_pullingProgress != pullingProgress) {
+        _pullingProgress = pullingProgress;
+        [self executeDropAnimationWithProgresss:pullingProgress];
+    }
+}
+
+- (void)setContentInsetTop:(CGFloat)contentInsetTop{
+    if (_contentInsetTop != contentInsetTop) {
+        _contentInsetTop = contentInsetTop;
+        [self setNeedsLayout];
+    }
+}
 - (void)setText:(NSString *)text{
     if (_text != text) {
         _text = [text copy];
@@ -297,4 +340,5 @@ static CGFloat const kRefreshHeaderHeight = 80;
         [self reloadPath];
     }
 }
+
 @end

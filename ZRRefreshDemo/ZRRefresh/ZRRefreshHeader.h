@@ -53,6 +53,8 @@ typedef void(^ZRRefreshHeaderRefreshingHandler)(void);
  */
 @property (nonatomic,assign) CGFloat maxDropHeight;
 
+@property (nonatomic,readonly,getter=isRefreshing) BOOL refreshing;
+
 /**
  动画属性配置
  */
@@ -61,5 +63,13 @@ typedef void(^ZRRefreshHeaderRefreshingHandler)(void);
 + (instancetype)refreshHeaderWithRefreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler;
 + (instancetype)refreshHeaderWithAnimationConfig: (ZRRefreshAnimationConfig *)animationConfig refreshingHandler: (ZRRefreshHeaderRefreshingHandler)handler;
 
+/**
+ 开始刷新
+ */
+- (void)beginRefreshing;
+
+/**
+ 结束刷新
+ */
 - (void)endRefreshing;
 @end
