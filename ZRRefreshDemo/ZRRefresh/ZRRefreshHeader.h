@@ -21,6 +21,7 @@ typedef NS_ENUM(NSUInteger, ZRRefreshState) {
  正在刷新的回调
  */
 typedef void(^ZRRefreshHeaderRefreshingHandler)(void);
+
 @interface ZRRefreshHeader : UIView
 
 /**

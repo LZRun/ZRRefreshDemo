@@ -32,7 +32,10 @@
  动画到底后的透明度 0~1 ，默认 0.5
  */
 @property (nonatomic) CGFloat alpha;
-@property (nonatomic,strong) CAAnimation *pullingAnimation;
+/**
+ 下拉动画,根据参数自动生成
+ */
+@property (nonatomic,strong,readonly) CAAnimation *pullingAnimation;
 //--------刷新动画设置
 /**
  动画类型

@@ -48,11 +48,18 @@
 
 - (NSMutableArray<NSMutableArray<NSValue *> *> *)pointsInPath{
     NSMutableArray *poins = [NSMutableArray array];
-    CGPathApply(self.CGPath, (__bridge void *)poins, MyCGPathApplierFunction);
+    CGPathApply(self.CGPath, (__bridge void *)poins, CGPathApplierToPoinsFunction);
     return poins;
 }
 
-void MyCGPathApplierFunction(void * __nullable info,const CGPathElement *  element){
+- (NSMutableArray<UIBezierPath *> *)zr_subpath{
+    NSMutableArray *paths = [NSMutableArray array];
+    CGPathApply(self.CGPath, (__bridge void *)paths, CGPathApplierToSubpathFunction);
+    return paths;
+}
+
+#pragma mark -  C Method
+void CGPathApplierToPoinsFunction(void * __nullable info,const CGPathElement *  element){
     NSMutableArray *pointsArray = (__bridge NSMutableArray *)info;
     CGPoint *points = element -> points;
     CGPathElementType type = element -> type;
@@ -88,6 +95,48 @@ void MyCGPathApplierFunction(void * __nullable info,const CGPathElement *  eleme
             break;
     }
 }
-@end
 
+void CGPathApplierToSubpathFunction(void * __nullable info,const CGPathElement *  element){
+    NSMutableArray *subpaths = (__bridge NSMutableArray *)info;
+    CGPoint *points = element -> points;
+    CGPathElementType type = element -> type;
+    
+    switch (type) {
+        case kCGPathElementMoveToPoint:{
+            UIBezierPath *subPath = [UIBezierPath bezierPath];
+            [subPath moveToPoint:points[0]];
+            [subpaths addObject:subPath];
+        }
+            break;
+        case kCGPathElementAddLineToPoint:{
+            UIBezierPath *lastSubPath = subpaths.lastObject;
+            UIBezierPath *subPath = [UIBezierPath bezierPath];
+            [subPath moveToPoint:lastSubPath.currentPoint];
+            [subPath addLineToPoint:points[0]];
+            [subpaths addObject:subPath];
+        }
+            break;
+        case kCGPathElementAddQuadCurveToPoint:{
+            UIBezierPath *lastSubPath = subpaths.lastObject;
+            UIBezierPath *subPath = [UIBezierPath bezierPath];
+            [subPath moveToPoint:lastSubPath.currentPoint];
+            [subPath addQuadCurveToPoint:points[1] controlPoint:points[0]];
+            [subpaths addObject:subPath];
+        }
+            break;
+        case kCGPathElementAddCurveToPoint:{
+            UIBezierPath *lastSubPath = subpaths.lastObject;
+            UIBezierPath *subPath = [UIBezierPath bezierPath];
+            [subPath moveToPoint:lastSubPath.currentPoint];
+            [subPath addCurveToPoint:points[2] controlPoint1:points[1] controlPoint2:points[0]];
+            [subpaths addObject:subPath];
+        }
+            break;
+        case kCGPathElementCloseSubpath:
+            break;
+        default:
+            break;
+    }
+}
+@end
 

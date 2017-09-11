@@ -74,7 +74,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
         [self addObserver];
         
         //绘制文字
-        [self reloadPath];
+        [self configPath];
     }
 }
 
@@ -96,27 +96,37 @@ static CGFloat const kRefreshHeaderHeight = 80;
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     self.layer.geometryFlipped = YES;
     
-    self.maxDropHeight = 80;
+    _maxDropHeight = 80;
     _refreshState = ZRRefreshStateIdle;
     _text = @"Loading";
     _textFont = [UIFont systemFontOfSize:50];
     _textColor = [UIColor redColor];
-    _refresingLineColor = [UIColor blackColor];
+    _refresingLineColor = [UIColor blueColor];
     
     [self.layer addSublayer:self.animationLayer];
 }
 
-- (void)reloadPath{
+- (void)configPath{
     self.textPath = [UIBezierPath bezierPathWithCovertedString:_text attrinbutes:@{NSFontAttributeName : _textFont}];
     _animationLayer.path = _textPath.CGPath;
     
-    NSMutableArray *allPoints = [_textPath pointsInPath];
     if (self.dropLayers) {
         [self.dropLayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
         [self.dropLayers removeAllObjects];
     }else{
        self.dropLayers = [NSMutableArray array];
     }
+    //第一种:按线分割文字
+    NSMutableArray *subPaths = [_textPath zr_subpath];
+    [subPaths enumerateObjectsUsingBlock:^(UIBezierPath *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        CAShapeLayer *dropLayer = [self dropAnimationLayerWithPath:obj];
+        [self.layer addSublayer:dropLayer];
+        [_dropLayers addObject:dropLayer];
+    }];
+    
+    /*
+     //第二种:按点分割文字，再在两点之间连线
+    NSMutableArray *allPoints = [_textPath pointsInPath];
     for (NSArray *pathPoints in allPoints) {
         //忽略少于2个点的路径数组
         if (pathPoints.count < 2) {
@@ -139,11 +149,13 @@ static CGFloat const kRefreshHeaderHeight = 80;
             }
         }];
     }
+     */
     [self placeLayer];
     
     [_animationLayer removeFromSuperlayer];
     [self.layer addSublayer:_animationLayer];
 }
+
 //对layar布局
 - (void)placeLayer{
     if (!_textPath) {
@@ -158,6 +170,12 @@ static CGFloat const kRefreshHeaderHeight = 80;
     [_dropLayers enumerateObjectsUsingBlock:^(CAShapeLayer * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         obj.frame = layerFrame;
     }];
+}
+//刷新文字
+- (void)reloadPath{
+    if (self.superview) {
+        [self configPath];
+    }
 }
 //配置AnimaitonConfig回调函数
 - (void)setUpAnimaitonConfigViewHeightHandler{
@@ -228,7 +246,6 @@ static CGFloat const kRefreshHeaderHeight = 80;
     
     //视图可见时的拖拽偏移量 （考虑到_contentInsetTop的值可能为正或负值得情况）
     //初始偏移： - _contentInsetTop 拖拽偏移: contentOffsetY - 初始偏移
-    
     CGFloat pullingOffSet = _contentInsetTop > 0 ? contentOffsetY + _contentInsetTop : contentOffsetY;
     if (pullingOffSet > 0) {//视图未达到可视位置时不处理
         return;
@@ -268,9 +285,6 @@ static CGFloat const kRefreshHeaderHeight = 80;
 }
 - (CAShapeLayer *)dropAnimationLayerWithPath: (UIBezierPath *)path {
     CAShapeLayer *dropLayer = [CAShapeLayer layer];
-    //dropLayer.frame = self.bounds;
-    //dropLayer.bounds = self.bounds;
-    //dropLayer.position = self.center;
     dropLayer.strokeColor = _textColor.CGColor;
     dropLayer.fillColor = [UIColor clearColor].CGColor;
     dropLayer.lineJoin = kCALineJoinRound;
@@ -300,6 +314,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
 - (void)setText:(NSString *)text{
     if (_text != text) {
         _text = [text copy];
+        
         [self reloadPath];
     }
 }

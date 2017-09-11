@@ -23,5 +23,8 @@
  @return 返回路径上所有的点,每条不相连的路径对应一个数组
  */
 - (NSMutableArray<NSMutableArray<NSValue *> *> *)pointsInPath;
-
+/**
+ @return 返回路径上所有连接的子路径
+ */
+- (NSMutableArray<UIBezierPath *> *)zr_subpath;
 @end

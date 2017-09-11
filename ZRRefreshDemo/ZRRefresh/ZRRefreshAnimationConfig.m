@@ -10,6 +10,7 @@
 
 @implementation ZRRefreshAnimationConfig
 @synthesize refreshingAnimation = _refreshingAnimation;
+@synthesize pullingAnimation = _pullingAnimation;
 
 + (instancetype)animationConfig{
     return [[self alloc]init];
@@ -44,10 +45,10 @@
     CABasicAnimation *scaleAnimation = [ZRAnimationFactory pullingScaleAnimation];
     scaleAnimation.fromValue = [NSValue valueWithCATransform3D:_scale];
     
-    CABasicAnimation *opacityAnimation = [ZRAnimationFactory pullingOpacityAnimation];
-    opacityAnimation.toValue = @(_alpha);
+//    CABasicAnimation *opacityAnimation = [ZRAnimationFactory pullingOpacityAnimation];
+//    opacityAnimation.toValue = @(_alpha);
     
-    NSMutableArray *animations = [NSMutableArray arrayWithObjects:translation,rotationAnimation,scaleAnimation,opacityAnimation, nil];
+    NSMutableArray *animations = [NSMutableArray arrayWithObjects:translation,rotationAnimation,scaleAnimation, nil];
     CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
     animationGroup.animations = animations;
     animationGroup.duration = 1;
