@@ -90,7 +90,9 @@ static CGFloat const kRefreshHeaderHeight = 80;
 - (void)dealloc{
     [self removeObserver];
 }
-#pragma mark - config
+
+#pragma mark - Config
+
 - (void)configHeader{
     self.backgroundColor = [UIColor clearColor];
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -125,7 +127,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
     }];
     
     /*
-     //第二种:按点分割文字，再在两点之间连线
+     //第二种:按点分割文字，在两点之间连线
     NSMutableArray *allPoints = [_textPath pointsInPath];
     for (NSArray *pathPoints in allPoints) {
         //忽略少于2个点的路径数组
@@ -184,7 +186,9 @@ static CGFloat const kRefreshHeaderHeight = 80;
         return weakSelf.frame.size.height;
     };
 }
-#pragma mark - animaiton
+
+#pragma mark - Animaiton
+
 - (void)executeDropAnimationWithProgresss: (CGFloat)progress{
     //NSLog(@"progress == %f",progress);
     NSInteger count = _dropLayers.count - 1;
@@ -202,7 +206,9 @@ static CGFloat const kRefreshHeaderHeight = 80;
         _refreshingHandler();
     }
 }
-#pragma mark - public
+
+#pragma mark - Public
+
 - (void)beginRefreshing{
      self.pullingProgress = 1;
     //防止因页面跳转造成的误刷新
@@ -230,6 +236,7 @@ static CGFloat const kRefreshHeaderHeight = 80;
 }
 
 #pragma mark - KVO
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
     if (![keyPath isEqualToString:@"contentOffset"]) {
         return;
@@ -267,7 +274,8 @@ static CGFloat const kRefreshHeaderHeight = 80;
     [_superScrollView removeObserver:self forKeyPath:@"contentOffset"];
 }
 
-#pragma mark - getLayer
+#pragma mark - GetLayer
+
 - (CAShapeLayer *)animationLayer{
     if (!_animationLayer) {
         _animationLayer = [CAShapeLayer layer];
@@ -297,7 +305,8 @@ static CGFloat const kRefreshHeaderHeight = 80;
     return dropLayer;
 }
 
-#pragma mark - setting,getting
+#pragma mark - Setter, Getter
+
 - (void)setPullingProgress:(CGFloat)pullingProgress{
     if (_pullingProgress != pullingProgress) {
         _pullingProgress = pullingProgress;
